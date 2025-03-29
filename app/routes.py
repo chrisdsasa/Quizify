@@ -27,7 +27,7 @@ def index():
 @login_required
 def dashboard():
     quizzes = Quiz.query.filter_by(user_id=current_user.id).all()
-    return render_template('dashboard.html', title='Dashboard', quizzes=quizzes)
+    return render_template('dashboard.html', title='Dashboard', quizzes=quizzes, QuizResult=QuizResult)
 
 @main.route('/upload_pdf', methods=['GET', 'POST'])
 @login_required
@@ -74,8 +74,8 @@ def upload_pdf():
                 
                 flash('PDF uploaded successfully! Generating quiz questions...', 'info')
                 
-                # Redirect to the quiz details page, questions will be generated asynchronously
-                return redirect(url_for('main.view_quiz', quiz_id=quiz.id))
+                # Redirect to generate questions with the specified number
+                return redirect(url_for('main.generate_questions', quiz_id=quiz.id, num_questions=num_questions))
             except Exception as e:
                 logger.error(f"Error processing PDF: {str(e)}")
                 flash(f'Error processing PDF: {str(e)}', 'danger')
@@ -124,8 +124,8 @@ def generate_questions(quiz_id):
         # Process the PDF and generate questions
         pdf_processor = PDFProcessor(api_key=api_key)
         
-        # Default to 5 questions
-        num_questions = 5
+        # Get the number of questions to generate, default to 5
+        num_questions = request.args.get('num_questions', 5, type=int)
         
         # Generate questions
         generated_questions = pdf_processor.process_pdf_and_generate_questions(
@@ -256,3 +256,27 @@ def take_quiz(access_code):
                            title=f'Quiz: {quiz.title}', 
                            quiz=quiz, 
                            questions=questions)
+
+@main.route('/quiz/<int:quiz_id>/delete', methods=['POST'])
+@login_required
+def delete_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    
+    # Ensure the current user is the owner of the quiz
+    if quiz.user_id != current_user.id:
+        return jsonify({"success": False, "error": "Permission denied"})
+    
+    try:
+        # Delete the PDF file if it exists
+        if quiz.pdf_path and os.path.exists(quiz.pdf_path):
+            os.remove(quiz.pdf_path)
+        
+        # Delete the quiz (cascade will delete associated questions and results)
+        db.session.delete(quiz)
+        db.session.commit()
+        
+        logger.info(f"Quiz {quiz_id} deleted successfully by user {current_user.id}")
+        return jsonify({"success": True})
+    except Exception as e:
+        logger.error(f"Error deleting quiz {quiz_id}: {str(e)}")
+        return jsonify({"success": False, "error": str(e)})

@@ -1,82 +1,343 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
+<div class="container my-4 animate-fade-in">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="card-title mb-0">Quiz Results</h3>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient text-white p-4" 
+                     style="background: linear-gradient(45deg, #4158D0, #C850C0);">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h3 fw-bold mb-0">Quiz Results</h2>
+                        <div class="result-badge rounded-pill px-3 py-2 
+                            {% if (result.score / result.max_score) < 0.6 %}bg-danger{% elif (result.score / result.max_score) < 0.8 %}bg-warning{% else %}bg-success{% endif %}">
+                            {{ (result.score / result.max_score * 100)|round|int }}%
+                        </div>
+                    </div>
+                    <p class="lead mb-0">{{ quiz.title }}</p>
                 </div>
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <h4>{{ quiz.title }}</h4>
-                        <p class="lead">Student: {{ result.student_name }}</p>
-                        
-                        <div class="result-score my-4">
-                            <div class="display-4 mb-2">
-                                {{ result.score }} / {{ result.max_score }}
+                
+                <div class="card-body p-4">
+                    <div class="student-info d-flex align-items-center mb-4">
+                        <div class="avatar-circle me-3 bg-primary text-white">
+                            {{ result.student_name[0]|upper }}
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-1">{{ result.student_name }}</h5>
+                            <p class="text-muted mb-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar3 me-1" viewBox="0 0 16 16">
+                                    <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
+                                    <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                                </svg>
+                                Completed on {{ result.completed_at.strftime('%B %d, %Y at %H:%M') }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="result-summary mb-5">
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="card h-100 bg-light border-0">
+                                    <div class="card-body text-center p-4">
+                                        <h6 class="text-muted mb-2">Score</h6>
+                                        <h3 class="fw-bold mb-0">{{ result.score }} / {{ result.max_score }}</h3>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="progress" style="height: 25px;">
-                                <div class="progress-bar {% if (result.score / result.max_score) < 0.6 %}bg-danger{% elif (result.score / result.max_score) < 0.8 %}bg-warning{% else %}bg-success{% endif %}" 
-                                     role="progressbar" 
-                                     style="width: {{ (result.score / result.max_score * 100)|round }}%;" 
-                                     aria-valuenow="{{ (result.score / result.max_score * 100)|round }}" 
-                                     aria-valuemin="0" 
-                                     aria-valuemax="100">
-                                    {{ (result.score / result.max_score * 100)|round }}%
+                            <div class="col-md-4">
+                                <div class="card h-100 bg-light border-0">
+                                    <div class="card-body text-center p-4">
+                                        <h6 class="text-muted mb-2">Percentage</h6>
+                                        <h3 class="fw-bold mb-0">
+                                            <span class="{% if (result.score / result.max_score) < 0.6 %}text-danger{% elif (result.score / result.max_score) < 0.8 %}text-warning{% else %}text-success{% endif %}">
+                                                {{ (result.score / result.max_score * 100)|round|int }}%
+                                            </span>
+                                        </h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100 bg-light border-0">
+                                    <div class="card-body text-center p-4">
+                                        <h6 class="text-muted mb-2">Grade</h6>
+                                        <h3 class="fw-bold mb-0 
+                                            {% if (result.score / result.max_score) < 0.6 %}text-danger{% elif (result.score / result.max_score) < 0.8 %}text-warning{% else %}text-success{% endif %}">
+                                            {{ "F" if (result.score / result.max_score) < 0.6 else "C" if (result.score / result.max_score) < 0.7 else "B" if (result.score / result.max_score) < 0.8 else "A" if (result.score / result.max_score) < 0.9 else "A+" }}
+                                        </h3>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <p class="text-muted">Completed on {{ result.completed_at.strftime('%B %d, %Y at %H:%M') }}</p>
+                        <div class="progress mt-4" style="height: 10px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated 
+                                {% if (result.score / result.max_score) < 0.6 %}bg-danger{% elif (result.score / result.max_score) < 0.8 %}bg-warning{% else %}bg-success{% endif %}" 
+                                role="progressbar" 
+                                style="width: {{ (result.score / result.max_score * 100)|round }}%;" 
+                                aria-valuenow="{{ (result.score / result.max_score * 100)|round }}" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100">
+                            </div>
+                        </div>
                     </div>
                     
-                    <hr>
-                    
-                    <h5 class="mb-3">Question Review</h5>
-                    {% set student_answers = result.get_answers() %}
-                    
-                    <div class="question-review">
-                        {% for question in questions %}
-                        <div class="question-item mb-4 p-3 border rounded">
-                            <h6 class="mb-3">Question {{ loop.index }}: {{ question.question_text }}</h6>
-                            
-                            <div class="options-list">
-                                {% set options = question.get_options() %}
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="fw-bold mb-0">Performance Breakdown</h5>
+                        </div>
+                        <div class="card-body">
+                            {% set student_answers = result.get_answers() %}
+                            {% set correct_count = 0 %}
+                            {% for question in questions %}
                                 {% set student_answer = student_answers.get(question.id|string, -1)|int %}
-                                
-                                {% for option in options %}
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" disabled 
-                                           {% if loop.index0 == student_answer %}checked{% endif %}>
-                                    <label class="form-check-label 
-                                        {% if loop.index0 == question.correct_answer %}text-success fw-bold{% endif %}
-                                        {% if loop.index0 == student_answer and loop.index0 != question.correct_answer %}text-danger{% endif %}">
-                                        {{ option }}
-                                        {% if loop.index0 == question.correct_answer %}
-                                        <span class="badge bg-success ms-2">Correct Answer</span>
-                                        {% endif %}
-                                        {% if loop.index0 == student_answer and loop.index0 != question.correct_answer %}
-                                        <span class="badge bg-danger ms-2">Your Answer</span>
-                                        {% endif %}
-                                    </label>
+                                {% if student_answer == question.correct_answer %}
+                                    {% set correct_count = correct_count + 1 %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <div class="performance-chart d-flex mb-4">
+                                <div class="chart-segment bg-success" 
+                                     style="width: {{ (correct_count / questions|length * 100)|round }}%; height: 24px; border-radius: 4px 0 0 4px;"></div>
+                                <div class="chart-segment bg-danger"
+                                     style="width: {{ ((questions|length - correct_count) / questions|length * 100)|round }}%; height: 24px; border-radius: 0 4px 4px 0;"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-2">
+                                <div>
+                                    <span class="badge bg-success me-1">●</span> Correct ({{ correct_count }})
                                 </div>
-                                {% endfor %}
+                                <div>
+                                    <span class="badge bg-danger me-1">●</span> Incorrect ({{ questions|length - correct_count }})
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mb-4 fw-bold">Question Review</h5>
+                    <div class="accordion question-review mb-4" id="questionReview">
+                        {% for question in questions %}
+                        <div class="accordion-item border mb-3 rounded overflow-hidden">
+                            {% set options = question.get_options() %}
+                            {% set student_answer = student_answers.get(question.id|string, -1)|int %}
+                            {% set is_correct = student_answer == question.correct_answer %}
+                            
+                            <h2 class="accordion-header" id="heading{{ loop.index }}">
+                                <button class="accordion-button collapsed 
+                                         {% if is_correct %}correct-question{% else %}incorrect-question{% endif %}" 
+                                        type="button" 
+                                        data-bs-toggle="collapse" 
+                                        data-bs-target="#collapse{{ loop.index }}" 
+                                        aria-expanded="false" 
+                                        aria-controls="collapse{{ loop.index }}">
+                                    <div class="d-flex align-items-center w-100">
+                                        <div class="status-indicator me-3 
+                                            {% if is_correct %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if is_correct %}
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                                                <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
+                                            </svg>
+                                            {% else %}
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                                            </svg>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <div class="question-text">{{ question.question_text }}</div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#questionReview">
+                                <div class="accordion-body bg-light">
+                                    <div class="options-list">
+                                        {% for option in options %}
+                                        <div class="form-check option-item mb-3">
+                                            <div class="option-display p-3 rounded 
+                                                {% if loop.index0 == question.correct_answer %}correct-option{% endif %}
+                                                {% if loop.index0 == student_answer and loop.index0 != question.correct_answer %}incorrect-option{% endif %}">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="option-indicator me-3 rounded-circle 
+                                                        {% if loop.index0 == question.correct_answer %}bg-success text-white{% elif loop.index0 == student_answer %}bg-danger text-white{% else %}bg-light{% endif %}">
+                                                        {{ "ABCDEFGHIJ"[loop.index0] }}
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="option-text 
+                                                            {% if loop.index0 == question.correct_answer %}fw-bold{% endif %}">
+                                                            {{ option }}
+                                                        </div>
+                                                        
+                                                        {% if loop.index0 == question.correct_answer %}
+                                                        <div class="badge bg-success mt-2">Correct Answer</div>
+                                                        {% endif %}
+                                                        
+                                                        {% if loop.index0 == student_answer and loop.index0 != question.correct_answer %}
+                                                        <div class="badge bg-danger mt-2">Your Answer</div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    {% if not is_correct %}
+                                    <div class="alert alert-info mt-3 mb-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle-fill me-2" viewBox="0 0 16 16">
+                                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                                        </svg>
+                                        Tip: Review the correct answer carefully to improve your understanding of this topic.
+                                    </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
                     
-                    <div class="d-grid gap-2 mt-4">
-                        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">Return to Home</a>
+                    <div class="action-buttons d-flex justify-content-between">
+                        <a href="{{ url_for('main.take_quiz', quiz_id=quiz.id) }}" class="btn btn-outline-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat me-1" viewBox="0 0 16 16">
+                                <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                                <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+                            </svg>
+                            Take Quiz Again
+                        </a>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door me-1" viewBox="0 0 16 16">
+                                <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146ZM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4H2.5Z"/>
+                            </svg>
+                            Return to Home
+                        </a>
                     </div>
                 </div>
-                <div class="card-footer text-center">
-                    <p class="text-muted mb-0">Quiz created by {{ quiz.author.username }}</p>
+                
+                <div class="card-footer bg-white p-3 d-flex justify-content-between align-items-center">
+                    <p class="text-muted mb-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person me-1" viewBox="0 0 16 16">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/>
+                        </svg>
+                        Quiz created by {{ quiz.author.username }}
+                    </p>
+                    <button class="btn btn-sm btn-outline-secondary" id="printResults">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer me-1" viewBox="0 0 16 16">
+                            <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                            <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+                        </svg>
+                        Print Results
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Print functionality
+        document.getElementById('printResults').addEventListener('click', function() {
+            window.print();
+        });
+        
+        // Auto-expand first incorrect answer (if any)
+        const firstIncorrect = document.querySelector('.incorrect-question');
+        if (firstIncorrect) {
+            setTimeout(() => {
+                firstIncorrect.click();
+            }, 500);
+        } else {
+            // If all correct, expand first question
+            const firstQuestion = document.querySelector('.accordion-button');
+            if (firstQuestion) {
+                setTimeout(() => {
+                    firstQuestion.click();
+                }, 500);
+            }
+        }
+    });
+</script>
+
+<style>
+    .status-indicator {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .avatar-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 20px;
+    }
+    
+    .result-badge {
+        font-weight: bold;
+    }
+    
+    .option-indicator {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    
+    .correct-option {
+        background-color: rgba(25, 135, 84, 0.1);
+        border: 1px solid rgba(25, 135, 84, 0.2);
+    }
+    
+    .incorrect-option {
+        background-color: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+    
+    .correct-question .accordion-button::after {
+        color: #198754;
+    }
+    
+    .incorrect-question .accordion-button::after {
+        color: #dc3545;
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @media print {
+        .navbar, footer, .action-buttons, .card-footer {
+            display: none !important;
+        }
+        
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        .accordion-collapse:not(.show) {
+            display: block !important;
+        }
+        
+        .accordion-button::after {
+            display: none !important;
+        }
+    }
+</style>
 {% endblock %} 

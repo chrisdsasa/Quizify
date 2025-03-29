@@ -1,30 +1,48 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
+<div class="container my-4 animate-fade-in">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title mb-0">{{ quiz.title }}</h3>
-                    <span class="badge bg-primary">{{ questions|length }} Questions</span>
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h2 class="h3 mb-0 fw-bold">{{ quiz.title }}</h2>
+                    <span class="badge bg-primary rounded-pill px-3 py-2">{{ questions|length }} Questions</span>
                 </div>
-                <div class="card-body">
-                    <p class="lead">{{ quiz.description }}</p>
+                <div class="card-body p-4">
+                    <p class="lead mb-4">{{ quiz.description }}</p>
                     
                     <form method="post" id="quizForm">
                         <!-- Student Info -->
-                        <div class="mb-4 p-3 border rounded bg-light">
-                            <h5>Student Information</h5>
+                        <div class="mb-4 p-4 border rounded bg-light">
+                            <h5 class="fw-bold mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-badge me-2" viewBox="0 0 16 16">
+                                    <path d="M6.5 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                    <path d="M4.5 0A2.5 2.5 0 0 0 2 2.5V14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2.5A2.5 2.5 0 0 0 11.5 0h-7zM3 2.5A1.5 1.5 0 0 1 4.5 1h7A1.5 1.5 0 0 1 13 2.5v10.795a4.2 4.2 0 0 0-.776-.492C11.392 12.387 10.063 12 8 12s-3.392.387-4.224.803a4.2 4.2 0 0 0-.776.492V2.5z"/>
+                                </svg>
+                                Student Information
+                            </h5>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="student_name" class="form-label">Your Name</label>
-                                    <input type="text" class="form-control" id="student_name" name="student_name" required>
+                                    <label for="student_name" class="form-label fw-semibold">Your Name</label>
+                                    <input type="text" class="form-control form-control-lg" id="student_name" name="student_name" placeholder="Enter your full name" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="student_email" class="form-label">Your Email</label>
-                                    <input type="email" class="form-control" id="student_email" name="student_email" required>
+                                    <label for="student_email" class="form-label fw-semibold">Your Email</label>
+                                    <input type="email" class="form-control form-control-lg" id="student_email" name="student_email" placeholder="Enter your email address" required>
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress bar -->
+                        <div class="mb-4 d-none" id="progress-container">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Question <span id="current-question">1</span> of {{ questions|length }}</span>
+                                <span class="badge bg-light text-dark border"><span id="progress-percentage">0</span>% Complete</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%;" id="progress-bar" 
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>
                         
@@ -32,44 +50,118 @@
                         <div id="questions-container">
                             {% if questions %}
                                 {% for question in questions %}
-                                <div class="question-card mb-4 p-4 border rounded">
-                                    <h5 class="question-text mb-3">
-                                        <span class="badge bg-secondary me-2">{{ loop.index }}</span>
+                                <div class="question-card mb-4 p-4 border rounded {% if loop.index > 1 %}d-none{% endif %}" data-question-number="{{ loop.index }}">
+                                    <h5 class="question-text mb-4">
+                                        <span class="badge bg-primary rounded-pill me-2">{{ loop.index }}</span>
                                         {{ question.question_text }}
                                     </h5>
                                     
-                                    <div class="options-list">
+                                    <div class="options-list mb-3">
                                         {% for option in question.get_options() %}
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="radio" 
+                                        <div class="form-check option-item mb-3 p-0">
+                                            <input class="form-check-input d-none" type="radio" 
                                                    name="question_{{ question.id }}" 
                                                    id="q{{ question.id }}_option{{ loop.index0 }}" 
-                                                   value="{{ loop.index0 }}" required>
-                                            <label class="form-check-label" for="q{{ question.id }}_option{{ loop.index0 }}">
-                                                {{ option }}
+                                                   value="{{ loop.index0 }}">
+                                            <label class="form-check-label option-label d-block p-3 border rounded" for="q{{ question.id }}_option{{ loop.index0 }}">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="option-indicator me-3">
+                                                        <span class="option-letter">{{ "ABCDEFGHIJ"[loop.index0] }}</span>
+                                                    </div>
+                                                    <div>{{ option }}</div>
+                                                </div>
                                             </label>
                                         </div>
                                         {% endfor %}
                                     </div>
+                                    
+                                    <div class="navigation-buttons d-flex justify-content-between mt-4">
+                                        {% if loop.index > 1 %}
+                                        <button type="button" class="btn btn-outline-primary prev-question" data-target="{{ loop.index - 1 }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                                            </svg>
+                                            Previous
+                                        </button>
+                                        {% else %}
+                                        <div></div>
+                                        {% endif %}
+                                        
+                                        {% if loop.index < questions|length %}
+                                        <button type="button" class="btn btn-primary next-question" data-target="{{ loop.index + 1 }}">
+                                            Next
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right ms-1" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                                            </svg>
+                                        </button>
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 {% endfor %}
                             {% else %}
-                                <div class="alert alert-warning">
-                                    No questions are available for this quiz.
+                                <div class="alert alert-warning d-flex align-items-center" role="alert">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill me-2" viewBox="0 0 16 16">
+                                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                    </svg>
+                                    <div>No questions are available for this quiz.</div>
                                 </div>
                             {% endif %}
                         </div>
                         
-                        <!-- Submit button -->
+                        <!-- Quiz Summary -->
+                        <div id="quiz-summary" class="d-none">
+                            <div class="card border-0 bg-light mb-4">
+                                <div class="card-body p-4">
+                                    <h5 class="fw-bold mb-3">Quiz Summary</h5>
+                                    <p>You've answered <span id="answered-count">0</span> out of {{ questions|length }} questions.</p>
+                                    
+                                    <div class="question-nav mb-3">
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% for question in questions %}
+                                            <button type="button" class="btn btn-sm btn-outline-secondary question-nav-btn" data-target="{{ loop.index }}">
+                                                {{ loop.index }}
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-warning d-none" id="unanswered-warning">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill me-2" viewBox="0 0 16 16">
+                                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                        </svg>
+                                        You have unanswered questions. Please review your answers before submitting.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit and Review buttons -->
                         {% if questions %}
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">Submit Answers</button>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-primary" id="review-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-check me-1" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3.854 2.146a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 3.293l1.146-1.147a.5.5 0 0 1 .708 0zm0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 7.293l1.146-1.147a.5.5 0 0 1 .708 0zm0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
+                                </svg>
+                                Review Answers
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle me-1" viewBox="0 0 16 16">
+                                    <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/>
+                                    <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/>
+                                </svg>
+                                Submit Quiz
+                            </button>
                         </div>
                         {% endif %}
                     </form>
                 </div>
-                <div class="card-footer text-center">
-                    <p class="text-muted mb-0">Quiz created by {{ quiz.author.username }}</p>
+                <div class="card-footer bg-white p-3 text-center">
+                    <p class="text-muted mb-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person me-1" viewBox="0 0 16 16">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/>
+                        </svg>
+                        Quiz created by {{ quiz.author.username }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -81,14 +173,154 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const quizForm = document.getElementById('quizForm');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentQuestionEl = document.getElementById('current-question');
+        const progressPercentage = document.getElementById('progress-percentage');
+        const quizSummary = document.getElementById('quiz-summary');
+        const answeredCount = document.getElementById('answered-count');
+        const unansweredWarning = document.getElementById('unanswered-warning');
+        const reviewBtn = document.getElementById('review-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const questionCards = document.querySelectorAll('.question-card');
+        const totalQuestions = {{ questions|length }};
+        let currentQuestion = 1;
         
+        // Show progress bar after entering student info
+        document.querySelectorAll('#student_name, #student_email').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (document.getElementById('student_name').value && document.getElementById('student_email').value) {
+                    progressContainer.classList.remove('d-none');
+                }
+            });
+        });
+        
+        // Navigation between questions
+        document.querySelectorAll('.next-question, .prev-question').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetQuestion = parseInt(this.getAttribute('data-target'));
+                showQuestion(targetQuestion);
+            });
+        });
+        
+        // Question navigation buttons
+        document.querySelectorAll('.question-nav-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetQuestion = parseInt(this.getAttribute('data-target'));
+                showQuestion(targetQuestion);
+                quizSummary.classList.add('d-none');
+            });
+        });
+        
+        // Review button
+        if (reviewBtn) {
+            reviewBtn.addEventListener('click', function() {
+                quizSummary.classList.toggle('d-none');
+                updateQuizSummary();
+            });
+        }
+        
+        // Enhance option selection
+        document.querySelectorAll('.option-label').forEach(label => {
+            label.addEventListener('click', function() {
+                // Add active class to selected option
+                const questionCard = this.closest('.question-card');
+                questionCard.querySelectorAll('.option-label').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // Update question nav buttons to show answered status
+                const questionNumber = parseInt(questionCard.getAttribute('data-question-number'));
+                document.querySelector(`.question-nav-btn[data-target="${questionNumber}"]`).classList.add('btn-success');
+                document.querySelector(`.question-nav-btn[data-target="${questionNumber}"]`).classList.remove('btn-outline-secondary');
+                
+                // Auto advance to next question after selecting an option (with a small delay)
+                setTimeout(() => {
+                    if (questionNumber < totalQuestions) {
+                        showQuestion(questionNumber + 1);
+                    }
+                }, 500);
+                
+                // Update progress
+                updateProgress();
+            });
+        });
+        
+        // Show specific question and hide others
+        function showQuestion(questionNumber) {
+            questionCards.forEach(card => {
+                card.classList.add('d-none');
+            });
+            
+            const targetCard = document.querySelector(`.question-card[data-question-number="${questionNumber}"]`);
+            if (targetCard) {
+                targetCard.classList.remove('d-none');
+                currentQuestion = questionNumber;
+                currentQuestionEl.textContent = currentQuestion;
+                updateProgress();
+            }
+        }
+        
+        // Update progress bar
+        function updateProgress() {
+            const answeredQuestions = countAnsweredQuestions();
+            const percentage = Math.round((answeredQuestions / totalQuestions) * 100);
+            
+            progressBar.style.width = `${percentage}%`;
+            progressBar.setAttribute('aria-valuenow', percentage);
+            progressPercentage.textContent = percentage;
+        }
+        
+        // Count answered questions
+        function countAnsweredQuestions() {
+            let count = 0;
+            questionCards.forEach(card => {
+                const questionId = card.querySelector('.form-check-input').name;
+                const answered = document.querySelector(`input[name="${questionId}"]:checked`);
+                if (answered) {
+                    count++;
+                }
+            });
+            return count;
+        }
+        
+        // Update quiz summary
+        function updateQuizSummary() {
+            const answered = countAnsweredQuestions();
+            answeredCount.textContent = answered;
+            
+            if (answered < totalQuestions) {
+                unansweredWarning.classList.remove('d-none');
+            } else {
+                unansweredWarning.classList.add('d-none');
+            }
+            
+            // Update nav buttons
+            document.querySelectorAll('.question-nav-btn').forEach(btn => {
+                const targetQuestion = parseInt(btn.getAttribute('data-target'));
+                const questionCard = document.querySelector(`.question-card[data-question-number="${targetQuestion}"]`);
+                const questionId = questionCard.querySelector('.form-check-input').name;
+                const answered = document.querySelector(`input[name="${questionId}"]:checked`);
+                
+                if (answered) {
+                    btn.classList.add('btn-success');
+                    btn.classList.remove('btn-outline-secondary', 'btn-danger');
+                } else {
+                    btn.classList.add('btn-danger');
+                    btn.classList.remove('btn-outline-secondary', 'btn-success');
+                }
+            });
+        }
+        
+        // Form submission validation
         if (quizForm) {
             quizForm.addEventListener('submit', function(e) {
                 const unansweredQuestions = [];
                 
                 // Check if all questions are answered
-                document.querySelectorAll('.question-card').forEach(function(questionCard, index) {
-                    const questionNumber = index + 1;
+                questionCards.forEach(function(questionCard) {
+                    const questionNumber = parseInt(questionCard.getAttribute('data-question-number'));
                     const questionId = questionCard.querySelector('.form-check-input').name;
                     const answered = document.querySelector(`input[name="${questionId}"]:checked`);
                     
@@ -99,10 +331,80 @@
                 
                 if (unansweredQuestions.length > 0) {
                     e.preventDefault();
-                    alert(`Please answer all questions. Missing answers for questions: ${unansweredQuestions.join(', ')}`);
+                    quizSummary.classList.remove('d-none');
+                    updateQuizSummary();
+                    
+                    // Scroll to summary
+                    quizSummary.scrollIntoView({ behavior: 'smooth' });
                 }
             });
         }
     });
 </script>
+
+<style>
+    .question-card {
+        transition: all 0.3s ease;
+    }
+    
+    .option-label {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 2px solid #dee2e6;
+    }
+    
+    .option-label:hover {
+        background-color: #f8f9fa;
+        border-color: #adb5bd;
+    }
+    
+    .option-label.active {
+        background-color: #e8f0fe;
+        border-color: #0d6efd;
+    }
+    
+    .form-check-input:checked + .option-label {
+        background-color: #e8f0fe;
+        border-color: #0d6efd;
+    }
+    
+    .option-indicator {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    
+    .option-label.active .option-indicator,
+    .form-check-input:checked + .option-label .option-indicator {
+        background-color: #0d6efd;
+        color: white;
+    }
+    
+    .question-nav-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .progress-bar {
+        transition: width 0.5s ease;
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+</style>
 {% endblock %} 

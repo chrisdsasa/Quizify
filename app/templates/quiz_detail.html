@@ -1,92 +1,196 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
+<div class="container my-4 animate-fade-in">
     <div class="row mb-4">
         <div class="col">
-            <h1 class="mb-3">{{ quiz.title }}</h1>
-            <p class="lead">{{ quiz.description }}</p>
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ quiz.title }}</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
                 <div>
-                    <span class="badge bg-secondary me-2">Created: {{ quiz.created_at.strftime('%B %d, %Y') }}</span>
-                    <span class="badge bg-info">Questions: {{ questions|length }}</span>
+                    <h1 class="fw-bold mb-2">{{ quiz.title }}</h1>
+                    <p class="lead text-muted">{{ quiz.description }}</p>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <span class="badge rounded-pill bg-light text-dark border">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-calendar3 me-1" viewBox="0 0 16 16">
+                                <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
+                                <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                            </svg>
+                            Created: {{ quiz.created_at.strftime('%B %d, %Y') }}
+                        </span>
+                        <span class="badge rounded-pill bg-light text-dark border">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-question-circle me-1" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                            </svg>
+                            {{ questions|length }} Questions
+                        </span>
+                        <span class="badge rounded-pill bg-light text-dark border">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-people me-1" viewBox="0 0 16 16">
+                                <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8Zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816ZM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/>
+                            </svg>
+                            {{ quiz.results.all()|length }} Responses
+                        </span>
+                    </div>
                 </div>
-                <div>
-                    <a href="{{ url_for('main.share_quiz', quiz_id=quiz.id) }}" class="btn btn-success">Share Quiz</a>
-                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('main.share_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share me-1" viewBox="0 0 16 16">
+                            <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+                        </svg>
+                        Share Quiz
+                    </a>
+                    <button class="btn btn-light" id="printQuizBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer me-1" viewBox="0 0 16 16">
+                            <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                            <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+                        </svg>
+                        Print
+                    </button>
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                        </svg>
+                        Back
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Quiz Questions</h4>
-                    <button class="btn btn-sm btn-primary" id="regenerateBtn">Regenerate Questions</button>
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h4 class="mb-0 fw-bold">Quiz Questions</h4>
+                    <button class="btn btn-primary" id="regenerateBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat me-1" viewBox="0 0 16 16">
+                            <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                            <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+                        </svg>
+                        Regenerate Questions
+                    </button>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     {% if questions %}
-                        {% for question in questions %}
-                        <div class="question-container mb-4 p-3 border rounded">
-                            <h5 class="mb-3">Question {{ loop.index }}: {{ question.question_text }}</h5>
-                            <div class="options-list">
-                                {% for option in question.get_options() %}
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" disabled 
-                                           {% if loop.index0 == question.correct_answer %}checked{% endif %}>
-                                    <label class="form-check-label {% if loop.index0 == question.correct_answer %}text-success fw-bold{% endif %}">
-                                        {{ option }}
-                                    </label>
+                        <div id="questionsAccordion" class="quiz-questions">
+                            {% for question in questions %}
+                            <div class="question-container mb-3 border rounded overflow-hidden">
+                                <div class="question-header p-3 bg-light d-flex justify-content-between align-items-start" id="questionHeading{{ loop.index }}">
+                                    <h5 class="mb-0 fw-semibold">
+                                        <button class="btn btn-link text-decoration-none text-start text-dark collapsed w-100" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#questionCollapse{{ loop.index }}" 
+                                                aria-expanded="false" 
+                                                aria-controls="questionCollapse{{ loop.index }}">
+                                            <span class="me-2 badge rounded-pill bg-primary">Q{{ loop.index }}</span>
+                                            {{ question.question_text }}
+                                        </button>
+                                    </h5>
+                                    <button class="btn btn-sm btn-outline-danger delete-question" 
+                                            data-question-id="{{ question.id }}" data-bs-toggle="tooltip" title="Remove Question">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
+                                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
+                                        </svg>
+                                    </button>
                                 </div>
-                                {% endfor %}
+                                <div id="questionCollapse{{ loop.index }}" class="collapse" aria-labelledby="questionHeading{{ loop.index }}" data-bs-parent="#questionsAccordion">
+                                    <div class="p-3">
+                                        <div class="options-list">
+                                            {% for option in question.get_options() %}
+                                            <div class="form-check mb-2 p-2 {% if loop.index0 == question.correct_answer %}bg-success bg-opacity-10 rounded{% endif %}">
+                                                <input class="form-check-input" type="radio" disabled 
+                                                       {% if loop.index0 == question.correct_answer %}checked{% endif %}>
+                                                <label class="form-check-label {% if loop.index0 == question.correct_answer %}text-success fw-bold{% endif %}">
+                                                    {{ option }}
+                                                </label>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mt-2 text-end">
-                                <button class="btn btn-sm btn-outline-danger delete-question" 
-                                        data-question-id="{{ question.id }}">Remove</button>
-                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     {% else %}
-                        <div class="alert alert-info">
-                            No questions have been generated for this quiz yet. Click on "Regenerate Questions" to create questions.
+                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-info-circle-fill me-2" viewBox="0 0 16 16">
+                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                            </svg>
+                            <div>
+                                No questions have been generated for this quiz yet. Click on "Regenerate Questions" to create questions.
+                            </div>
                         </div>
                     {% endif %}
                 </div>
             </div>
+        </div>
 
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h4 class="mb-0">Quiz Results</h4>
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h4 class="mb-0 fw-bold">Quiz Results</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {% if quiz.results.all() %}
                         <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
                                     <tr>
                                         <th>Student</th>
-                                        <th>Email</th>
                                         <th>Score</th>
-                                        <th>Completed</th>
+                                        <th>Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for result in quiz.results %}
                                     <tr>
-                                        <td>{{ result.student_name }}</td>
-                                        <td>{{ result.student_email }}</td>
-                                        <td>{{ result.score }} / {{ result.max_score }} ({{ (result.score / result.max_score * 100)|round }}%)</td>
-                                        <td>{{ result.completed_at.strftime('%B %d, %Y %H:%M') }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle me-2 bg-primary text-white">
+                                                    {{ result.student_name[0]|upper }}
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold">{{ result.student_name }}</div>
+                                                    <div class="small text-muted">{{ result.student_email }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="score-badge 
+                                                {% if (result.score / result.max_score * 100)|round >= 80 %}bg-success text-white
+                                                {% elif (result.score / result.max_score * 100)|round >= 60 %}bg-warning
+                                                {% else %}bg-danger text-white{% endif %} 
+                                                rounded px-2 py-1 d-inline-block text-center">
+                                                {{ (result.score / result.max_score * 100)|round|int }}%
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="small text-muted">{{ result.completed_at.strftime('%b %d, %Y') }}</div>
+                                            <div class="small">{{ result.completed_at.strftime('%H:%M') }}</div>
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     {% else %}
-                        <div class="alert alert-info">
-                            No students have taken this quiz yet. Share the quiz to get results.
+                        <div class="d-flex flex-column align-items-center justify-content-center p-4 text-center">
+                            <div class="empty-state-icon mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-people text-muted" viewBox="0 0 16 16">
+                                    <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8Zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816ZM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/>
+                                </svg>
+                            </div>
+                            <p class="text-muted mb-3">No students have taken this quiz yet.</p>
+                            <a href="{{ url_for('main.share_quiz', quiz_id=quiz.id) }}" class="btn btn-sm btn-outline-primary">
+                                Share Quiz with Students
+                            </a>
                         </div>
                     {% endif %}
                 </div>
@@ -99,9 +203,20 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+        
         // Regenerate questions functionality
         document.getElementById('regenerateBtn').addEventListener('click', function() {
             if (confirm('Are you sure you want to regenerate questions? This will replace all existing questions.')) {
+                // Show loading state
+                const originalHTML = this.innerHTML;
+                this.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Regenerating...`;
+                this.disabled = true;
+                
                 // Send AJAX request to regenerate
                 fetch(`/quiz/{{ quiz.id }}/regenerate`, {
                     method: 'POST',
@@ -116,15 +231,22 @@
                         window.location.reload();
                     } else {
                         alert('Error regenerating questions: ' + data.error);
+                        this.innerHTML = originalHTML;
+                        this.disabled = false;
                     }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.innerHTML = originalHTML;
+                    this.disabled = false;
+                });
             }
         });
 
         // Delete question functionality
         document.querySelectorAll('.delete-question').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent collapse toggle
                 const questionId = this.getAttribute('data-question-id');
                 if (confirm('Are you sure you want to delete this question?')) {
                     // Send AJAX request to delete
@@ -147,6 +269,60 @@
                 }
             });
         });
+        
+        // Print functionality
+        document.getElementById('printQuizBtn').addEventListener('click', function() {
+            window.print();
+        });
+        
+        // Expand first question by default if there are questions
+        const firstQuestion = document.querySelector('#questionsAccordion .collapse');
+        if (firstQuestion) {
+            new bootstrap.Collapse(firstQuestion, {
+                toggle: true
+            });
+        }
     });
 </script>
+
+<style>
+    .avatar-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    
+    .score-badge {
+        min-width: 50px;
+        font-weight: 600;
+    }
+    
+    @media print {
+        .navbar, .breadcrumb, .btn, footer {
+            display: none !important;
+        }
+        
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        .card-header {
+            background-color: #fff !important;
+        }
+        
+        .collapse:not(.show) {
+            display: block !important;
+        }
+        
+        .question-header button::after {
+            display: none !important;
+        }
+    }
+</style>
 {% endblock %} 
