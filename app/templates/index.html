@@ -10,8 +10,8 @@
             <a href="{{ url_for('main.upload_pdf') }}" class="btn btn-primary btn-lg px-4 me-md-2">Create a Quiz</a>
             <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary btn-lg px-4">My Quizzes</a>
             {% else %}
-            <a href="#register" class="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
-            <a href="#login" class="btn btn-outline-secondary btn-lg px-4">Login</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg px-4">Login</a>
             {% endif %}
         </div>
     </div>

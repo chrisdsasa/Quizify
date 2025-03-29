@@ -20,6 +20,9 @@ def create_app(config_class=Config):
     
     # Register blueprints
     from app.routes import main
+    from app.auth import auth
+    
     app.register_blueprint(main)
+    app.register_blueprint(auth, url_prefix='/auth')
     
     return app
