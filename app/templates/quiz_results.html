@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">Quiz Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h4>{{ quiz.title }}</h4>
+                        <p class="lead">Student: {{ result.student_name }}</p>
+                        
+                        <div class="result-score my-4">
+                            <div class="display-4 mb-2">
+                                {{ result.score }} / {{ result.max_score }}
+                            </div>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar {% if (result.score / result.max_score) < 0.6 %}bg-danger{% elif (result.score / result.max_score) < 0.8 %}bg-warning{% else %}bg-success{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ (result.score / result.max_score * 100)|round }}%;" 
+                                     aria-valuenow="{{ (result.score / result.max_score * 100)|round }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ (result.score / result.max_score * 100)|round }}%
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p class="text-muted">Completed on {{ result.completed_at.strftime('%B %d, %Y at %H:%M') }}</p>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5 class="mb-3">Question Review</h5>
+                    {% set student_answers = result.get_answers() %}
+                    
+                    <div class="question-review">
+                        {% for question in questions %}
+                        <div class="question-item mb-4 p-3 border rounded">
+                            <h6 class="mb-3">Question {{ loop.index }}: {{ question.question_text }}</h6>
+                            
+                            <div class="options-list">
+                                {% set options = question.get_options() %}
+                                {% set student_answer = student_answers.get(question.id|string, -1)|int %}
+                                
+                                {% for option in options %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" disabled 
+                                           {% if loop.index0 == student_answer %}checked{% endif %}>
+                                    <label class="form-check-label 
+                                        {% if loop.index0 == question.correct_answer %}text-success fw-bold{% endif %}
+                                        {% if loop.index0 == student_answer and loop.index0 != question.correct_answer %}text-danger{% endif %}">
+                                        {{ option }}
+                                        {% if loop.index0 == question.correct_answer %}
+                                        <span class="badge bg-success ms-2">Correct Answer</span>
+                                        {% endif %}
+                                        {% if loop.index0 == student_answer and loop.index0 != question.correct_answer %}
+                                        <span class="badge bg-danger ms-2">Your Answer</span>
+                                        {% endif %}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">Return to Home</a>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="text-muted mb-0">Quiz created by {{ quiz.author.username }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

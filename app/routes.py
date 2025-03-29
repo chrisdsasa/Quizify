@@ -4,8 +4,15 @@ import os
 from werkzeug.utils import secure_filename
 from app import db
 from app.models import User, Quiz, Question, QuizResult
+from app.utils.pdf_processor import PDFProcessor
+import json
+import logging
 
 main = Blueprint('main', __name__)
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Helper functions
 def allowed_file(filename):
@@ -41,7 +48,13 @@ def upload_pdf():
             
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            upload_folder = current_app.config['UPLOAD_FOLDER']
+            
+            # Create upload folder if it doesn't exist
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+                
+            filepath = os.path.join(upload_folder, filename)
             file.save(filepath)
             
             # Create a new quiz
@@ -54,10 +67,19 @@ def upload_pdf():
             db.session.add(quiz)
             db.session.commit()
             
-            # TODO: Add LangChain processing for quiz generation here
-            
-            flash('PDF uploaded successfully! Processing quiz...', 'success')
-            return redirect(url_for('main.dashboard'))
+            # Process the PDF and generate questions
+            try:
+                # Get the number of questions from the form, default to 5
+                num_questions = int(request.form.get('num_questions', 5))
+                
+                flash('PDF uploaded successfully! Generating quiz questions...', 'info')
+                
+                # Redirect to the quiz details page, questions will be generated asynchronously
+                return redirect(url_for('main.view_quiz', quiz_id=quiz.id))
+            except Exception as e:
+                logger.error(f"Error processing PDF: {str(e)}")
+                flash(f'Error processing PDF: {str(e)}', 'danger')
+                return redirect(url_for('main.dashboard'))
             
         else:
             flash('File type not allowed. Please upload a PDF.', 'danger')
@@ -74,7 +96,98 @@ def view_quiz(quiz_id):
         return redirect(url_for('main.dashboard'))
         
     questions = quiz.questions.all()
+    
+    # If there are no questions yet, generate them
+    if not questions and quiz.pdf_path:
+        return redirect(url_for('main.generate_questions', quiz_id=quiz.id))
+        
     return render_template('quiz_detail.html', title=quiz.title, quiz=quiz, questions=questions)
+
+@main.route('/quiz/<int:quiz_id>/generate')
+@login_required
+def generate_questions(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    
+    # Ensure the current user is the owner of the quiz
+    if quiz.user_id != current_user.id:
+        flash('You do not have permission to modify this quiz', 'danger')
+        return redirect(url_for('main.dashboard'))
+        
+    if not quiz.pdf_path or not os.path.exists(quiz.pdf_path):
+        flash('PDF file not found', 'danger')
+        return redirect(url_for('main.view_quiz', quiz_id=quiz.id))
+    
+    try:
+        # Get the OpenAI API key from config
+        api_key = current_app.config.get('OPENAI_API_KEY')
+        
+        # Process the PDF and generate questions
+        pdf_processor = PDFProcessor(api_key=api_key)
+        
+        # Default to 5 questions
+        num_questions = 5
+        
+        # Generate questions
+        generated_questions = pdf_processor.process_pdf_and_generate_questions(
+            quiz.pdf_path, 
+            num_questions=num_questions
+        )
+        
+        # Delete existing questions for this quiz
+        Question.query.filter_by(quiz_id=quiz.id).delete()
+        
+        # Add the new questions to the database
+        for q_data in generated_questions:
+            question = Question(
+                quiz_id=quiz.id,
+                question_text=q_data['question_text'],
+                correct_answer=q_data['correct_answer']
+            )
+            # Set options as JSON
+            question.set_options(q_data['options'])
+            db.session.add(question)
+        
+        db.session.commit()
+        flash('Quiz questions generated successfully!', 'success')
+    except Exception as e:
+        logger.error(f"Error generating questions: {str(e)}")
+        flash(f'Error generating questions: {str(e)}', 'danger')
+    
+    return redirect(url_for('main.view_quiz', quiz_id=quiz.id))
+
+@main.route('/quiz/<int:quiz_id>/regenerate', methods=['POST'])
+@login_required
+def regenerate_questions(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    
+    # Ensure the current user is the owner of the quiz
+    if quiz.user_id != current_user.id:
+        return jsonify({"success": False, "error": "Permission denied"})
+    
+    try:
+        # Redirect to generate questions
+        return redirect(url_for('main.generate_questions', quiz_id=quiz.id))
+    except Exception as e:
+        logger.error(f"Error regenerating questions: {str(e)}")
+        return jsonify({"success": False, "error": str(e)})
+
+@main.route('/question/<int:question_id>/delete', methods=['POST'])
+@login_required
+def delete_question(question_id):
+    question = Question.query.get_or_404(question_id)
+    quiz = Quiz.query.get(question.quiz_id)
+    
+    # Ensure the current user is the owner of the quiz
+    if quiz.user_id != current_user.id:
+        return jsonify({"success": False, "error": "Permission denied"})
+    
+    try:
+        db.session.delete(question)
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        logger.error(f"Error deleting question: {str(e)}")
+        return jsonify({"success": False, "error": str(e)})
 
 @main.route('/quiz/<int:quiz_id>/share')
 @login_required

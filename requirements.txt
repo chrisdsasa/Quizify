@@ -1,12 +1,31 @@
+# Flask and extensions
 Flask==2.3.3
-Flask-WTF==1.1.1
-Flask-SQLAlchemy==3.0.5
-Flask-Login==0.6.2
-Flask-Migrate==4.0.4
-python-dotenv==1.0.0
-Werkzeug==2.3.7
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+WTForms==3.1.1
+email-validator==2.1.0
+
+# Database
+SQLAlchemy==2.0.23
+alembic==1.12.1
+
+# PDF Processing
 PyPDF2==3.0.1
+
+# AI Integration
 langchain==0.0.267
 langchain-openai==0.0.2
-pdfplumber==0.10.2
-gunicorn==21.2.0
+openai==1.6.1
+
+# Utilities
+python-dotenv==1.0.0
+Werkzeug==2.3.7
+Jinja2==3.1.2
+itsdangerous==2.1.2
+pydantic==2.4.2
+
+# Production (uncomment for deployment)
+# gunicorn==21.2.0
+# psycopg2-binary==2.9.9

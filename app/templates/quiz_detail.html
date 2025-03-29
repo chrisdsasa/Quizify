@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">{{ quiz.title }}</h1>
+            <p class="lead">{{ quiz.description }}</p>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <span class="badge bg-secondary me-2">Created: {{ quiz.created_at.strftime('%B %d, %Y') }}</span>
+                    <span class="badge bg-info">Questions: {{ questions|length }}</span>
+                </div>
+                <div>
+                    <a href="{{ url_for('main.share_quiz', quiz_id=quiz.id) }}" class="btn btn-success">Share Quiz</a>
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Quiz Questions</h4>
+                    <button class="btn btn-sm btn-primary" id="regenerateBtn">Regenerate Questions</button>
+                </div>
+                <div class="card-body">
+                    {% if questions %}
+                        {% for question in questions %}
+                        <div class="question-container mb-4 p-3 border rounded">
+                            <h5 class="mb-3">Question {{ loop.index }}: {{ question.question_text }}</h5>
+                            <div class="options-list">
+                                {% for option in question.get_options() %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" disabled 
+                                           {% if loop.index0 == question.correct_answer %}checked{% endif %}>
+                                    <label class="form-check-label {% if loop.index0 == question.correct_answer %}text-success fw-bold{% endif %}">
+                                        {{ option }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="mt-2 text-end">
+                                <button class="btn btn-sm btn-outline-danger delete-question" 
+                                        data-question-id="{{ question.id }}">Remove</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            No questions have been generated for this quiz yet. Click on "Regenerate Questions" to create questions.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4 class="mb-0">Quiz Results</h4>
+                </div>
+                <div class="card-body">
+                    {% if quiz.results.all() %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Email</th>
+                                        <th>Score</th>
+                                        <th>Completed</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for result in quiz.results %}
+                                    <tr>
+                                        <td>{{ result.student_name }}</td>
+                                        <td>{{ result.student_email }}</td>
+                                        <td>{{ result.score }} / {{ result.max_score }} ({{ (result.score / result.max_score * 100)|round }}%)</td>
+                                        <td>{{ result.completed_at.strftime('%B %d, %Y %H:%M') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            No students have taken this quiz yet. Share the quiz to get results.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Regenerate questions functionality
+        document.getElementById('regenerateBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to regenerate questions? This will replace all existing questions.')) {
+                // Send AJAX request to regenerate
+                fetch(`/quiz/{{ quiz.id }}/regenerate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Error regenerating questions: ' + data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        });
+
+        // Delete question functionality
+        document.querySelectorAll('.delete-question').forEach(button => {
+            button.addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question-id');
+                if (confirm('Are you sure you want to delete this question?')) {
+                    // Send AJAX request to delete
+                    fetch(`/question/${questionId}/delete`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            alert('Error deleting question: ' + data.error);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

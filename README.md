@@ -1,114 +1,146 @@
 # PDF Quiz Generator
 
-A web application that allows teachers to upload PDF documents and automatically generate interactive quizzes for their students. Powered by Flask and LangChain.
+A web application that allows teachers to upload PDF documents and automatically generate quizzes using AI. Students can take these quizzes and get immediate feedback.
 
 ## Features
 
-- **PDF Upload**: Teachers can upload educational PDF documents
-- **AI-Generated Quizzes**: Automatically creates multiple-choice questions based on the PDF content
-- **Shareable Quizzes**: Teachers can share a unique link with students to access the quiz
-- **Student Responses**: Tracks student answers and provides scores
-- **Results Dashboard**: Teachers can view individual and aggregate results
+- User authentication (register, login, logout)
+- PDF document upload
+- Automatic quiz generation from PDF content using AI
+- Quiz sharing via unique URLs
+- Quiz taking and automatic grading
+- Result tracking and visualization
 
 ## Technology Stack
 
-- **Backend**: Python, Flask
-- **Frontend**: HTML, CSS (Bootstrap 5), JavaScript
-- **Database**: SQLite (using SQLAlchemy)
-- **AI Integration**: LangChain + LLM APIs (OpenAI)
-- **PDF Processing**: PyPDF2, pdfplumber
+- **Backend**: Flask, SQLAlchemy, Flask-Login
+- **Frontend**: Bootstrap 5, JavaScript
+- **Database**: SQLite (development), PostgreSQL (production)
+- **AI**: OpenAI GPT-3.5 via LangChain
+- **PDF Processing**: PyPDF2
 
-## Installation
+## Getting Started
+
+### Prerequisites
+
+- Python 3.8 or higher
+- OpenAI API key
+
+### Installation
 
 1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/pdf-quiz-generator.git
-cd pdf-quiz-generator
-```
+   ```
+   git clone <repository-url>
+   cd AIPdf
+   ```
 
 2. Create and activate a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+   ```
+   # Using conda
+   conda create -n aipdf_env python=3.8
+   conda activate aipdf_env
+   
+   # Or using venv
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
 3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+   ```
+   pip install -r requirements.txt
+   ```
 
-4. Create a `.env` file in the project root directory with the following variables:
-```
-SECRET_KEY=your-secret-key
-OPENAI_API_KEY=your-openai-api-key
-```
+4. Set up environment variables:
+   ```
+   cp .env.example .env
+   ```
+   Edit the `.env` file and add your OpenAI API key and other settings.
 
 5. Initialize the database:
-```bash
-flask db init
-flask db migrate -m "Initial migration"
-flask db upgrade
-```
+   ```
+   flask db init
+   flask db migrate -m "Initial migration"
+   flask db upgrade
+   ```
 
 6. Run the application:
-```bash
-flask run
-```
+   ```
+   flask run
+   ```
 
-The application will be available at http://127.0.0.1:5000/
-
-## Project Structure
-
-```
-pdf-quiz-generator/
-├── app/
-│   ├── static/
-│   │   ├── css/
-│   │   ├── js/
-│   │   └── uploads/  # PDF storage
-│   ├── templates/    # HTML templates
-│   ├── __init__.py   # Flask application factory
-│   ├── models.py     # Database models
-│   └── routes.py     # Application routes
-├── migrations/       # Database migrations
-├── instance/         # SQLite database
-├── .env              # Environment variables
-├── config.py         # Application configuration
-├── requirements.txt  # Python dependencies
-└── run.py            # Application entry point
-```
+The application will be available at `http://127.0.0.1:5000`.
 
 ## Usage
 
-### For Teachers
+1. **Register and Log In**:
+   - Create a new account by clicking on the Register link
+   - Log in with your credentials
 
-1. Register for an account
-2. Login and navigate to "Upload PDF"
-3. Upload a PDF document and configure quiz options
-4. Wait for the AI to generate quiz questions
-5. Share the generated quiz link with students
-6. View student responses in the dashboard
+2. **Upload a PDF**:
+   - Navigate to "Upload PDF" in the navigation bar
+   - Fill in the quiz title and description
+   - Select a PDF file from your computer
+   - Click "Upload and Generate Quiz"
 
-### For Students
+3. **View and Share Quiz**:
+   - View the generated quiz on the dashboard
+   - Click on a quiz to see details and questions
+   - Use the "Share Quiz" button to get a shareable link
 
-1. Access the quiz using the shared link
-2. Enter your name and email
-3. Answer the multiple-choice questions
-4. Submit your answers and view your score
-5. Results are automatically sent to the teacher
+4. **Take a Quiz**:
+   - Access the quiz using the shared link
+   - Enter your name and email
+   - Answer all questions
+   - Submit to see your results
 
-## Future Enhancements
+## Development
 
-- Question editing for teachers
-- Additional question types (short answer, true/false)
-- PDF annotation for more targeted quizzes
-- Student accounts for tracking progress
-- Integration with learning management systems (LMS)
+### Project Structure
+
+```
+AIPdf/
+├── app/
+│   ├── __init__.py          # Application factory
+│   ├── models.py            # Database models
+│   ├── routes.py            # Main routes
+│   ├── auth/                # Authentication blueprint
+│   │   ├── __init__.py
+│   │   ├── forms.py
+│   │   └── routes.py
+│   ├── static/              # Static files
+│   │   ├── css/
+│   │   ├── js/
+│   │   └── uploads/         # Uploaded PDFs
+│   ├── templates/           # Jinja2 templates
+│   │   ├── auth/
+│   │   ├── base.html
+│   │   └── ...
+│   └── utils/               # Utility functions
+│       ├── __init__.py
+│       └── pdf_processor.py
+├── migrations/              # Database migrations
+├── instance/                # Instance-specific data
+│   └── app.db               # SQLite database
+├── config.py                # Configuration settings
+├── run.py                   # Application entry point
+├── .env                     # Environment variables
+└── requirements.txt         # Dependencies
+```
+
+### Database Models
+
+- **User**: Authentication and user information
+- **Quiz**: Represents a quiz created from a PDF
+- **Question**: Multiple-choice questions for each quiz
+- **QuizResult**: Student results for each quiz attempt
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Contributing
+## Acknowledgements
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- [Flask](https://flask.palletsprojects.com/)
+- [Bootstrap](https://getbootstrap.com/)
+- [LangChain](https://github.com/hwchase17/langchain)
+- [OpenAI](https://openai.com/)
